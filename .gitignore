@@ -2,3 +2,4 @@ venv/
 *.json
 *.pickle
 *.pdf
+.env
