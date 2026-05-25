@@ -44,8 +44,40 @@ def download_pdf_attachments(service, message_id, subject):
                     id=attachment_id
                 ).execute()
                 
-                # Decode and save
-                file_data = base64.b64decode(attachment['data'])
+                import base64
+                import binascii
+                
+                data = attachment['data']
+
+                # Remove any whitespace first
+                data = data.strip()
+
+                # Fix padding
+                missing_padding = len(data) % 4
+                if missing_padding:
+                    data += '=' * (4 - missing_padding)
+
+                # Handle URL-safe base64 if needed
+                try:
+                    file_data = base64.b64decode(data)
+                except binascii.Error:
+                    # Try URL-safe decoding
+                    file_data = base64.urlsafe_b64decode(data)
+                
+                # print("this is the attachment")
+                # print(attachment)
+                # print(type(attachment))
+                # print(type(attachment['data']))
+                # data = attachment['data']
+                # print("before length is ")
+                # print(len(data))
+                # while len(data)%4 != 0:
+                #     data = data[0:len(data)-1]
+
+                # print("now length is ")
+                # print(len(data))
+                # # file_data = base64.b64decode(attachment['data'])
+                # file_data = base64.b64decode(data) 
                 # Clean filename for filesystem
                 safe_filename = f"{message_id}_{part['filename']}"
                 filepath = os.path.join('inbox_pdfs', safe_filename)
